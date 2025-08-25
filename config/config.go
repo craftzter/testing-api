@@ -35,6 +35,6 @@ func LoadingConfig() (*Config, error) {
 		DBUser:      getEnv("DB_USER", "root"),
 		DBPassword:  getEnv("DB_PASSWORD", "sevret"),
 		DBName:      getEnv("DB_NAME", "testing"),
-		DatabaseUrl: getEnv("DATABASE_URL", "host=localhost"),
+		DatabaseUrl: getEnv("DATABASE_URL", ""),
 	}, nil
 }
