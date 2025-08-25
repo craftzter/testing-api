@@ -7,18 +7,13 @@ import (
 	"github.com/joho/godotenv"
 )
 
-// APP_PORT=8080
-// APP_HOST=localhost
-// DB_USER=root
-// DB_PASSWORD=secret
-// DB_NAME=testing
-
 type Config struct {
-	AppPort    string
-	AppHost    string
-	DBUser     string
-	DBPassword string
-	DBName     string
+	AppPort     string
+	AppHost     string
+	DBUser      string
+	DBPassword  string
+	DBName      string
+	DatabaseUrl string
 }
 
 // function to make sure server can run if the env not set enought
@@ -35,10 +30,11 @@ func LoadingConfig() (*Config, error) {
 		return nil, fmt.Errorf("Error loading file: %v", err)
 	}
 	return &Config{
-		AppPort:    getEnv("APP_PORT", "8080"),
-		AppHost:    getEnv("APP_HOST", "localhost"),
-		DBUser:     getEnv("DB_USER", "root"),
-		DBPassword: getEnv("DB_PASSWORD", "sevret"),
-		DBName:     getEnv("DB_NAME", "testing"),
+		AppPort:     getEnv("APP_PORT", "8080"),
+		AppHost:     getEnv("APP_HOST", "localhost"),
+		DBUser:      getEnv("DB_USER", "root"),
+		DBPassword:  getEnv("DB_PASSWORD", "sevret"),
+		DBName:      getEnv("DB_NAME", "testing"),
+		DatabaseUrl: getEnv("DATABASE_URL", "host=localhost"),
 	}, nil
 }
