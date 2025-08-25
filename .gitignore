@@ -1,0 +1,41 @@
+
+# ==== Go build ====
+/bin/
+/build/
+/dist/
+/out/
+*.exe
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Go workspace
+go.work
+go.work.sum
+
+# ==== Dependencies ====
+vendor/
+
+# ==== Environment / Config ====
+.env
+.env.local
+.env.*.local
+
+# ==== Logs ====
+*.log
+logs/
+tmp/
+*.pid
+*.seed
+
+# ==== IDE / Editor ====
+.vscode/
+.idea/
+*.swp
+*~
+
+# ==== OS files ====
+.DS_Store
+Thumbs.db
