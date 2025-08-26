@@ -7,6 +7,9 @@ import (
 )
 
 func SetupUserRoute(r *chi.Mux, handler *handlers.Handler) {
-	// karena CreateUserHandler return http.HandlerFunc
-	r.Post("/users", handler.CreateUserHandler())
+	r.Route("/users", func(r chi.Router) {
+		r.Post("/register", handler.CreateUserHandler())
+		r.Post("/login", handler.LoginHandler())
+		r.Put("/{id}", handler.UpdateHandler())
+	})
 }

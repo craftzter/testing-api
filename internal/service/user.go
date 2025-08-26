@@ -2,9 +2,13 @@ package service
 
 import (
 	"context"
+	"fmt"
+	"monly-login-api/internal/dto"
 	db "monly-login-api/internal/generate"
 	"monly-login-api/utils"
 	"time"
+
+	"golang.org/x/crypto/openpgp/errors"
 )
 
 type UserService struct {
@@ -15,18 +19,66 @@ func NewUserService(q *db.Queries) *UserService {
 	return &UserService{queries: q}
 }
 
-func (s *UserService) CreateUser(ctx context.Context, username, email, password string) error {
-	hashedPassword, err := utils.HashPassword(password)
+func (s *UserService) CreateUser(ctx context.Context, req dto.CreateUserRequest) (db.User, error) {
+	hashedPassword, err := utils.HashPassword(req.Password)
 	if err != nil {
-		return err
+		return db.User{}, err
 	}
 
 	_, err = s.queries.CreateUser(ctx, db.CreateUserParams{
-		Username: username,
-		Email:    email,
+		Username: req.Username,
+		Email:    req.Email,
 		Password: hashedPassword,
 		Created:  time.Now(),
 		Updated:  time.Now(),
 	})
-	return err
+	return db.User{}, err
+}
+
+func (s *UserService) LoginUser(ctx context.Context, req dto.LoginUserRequest) (*db.User, error) {
+	// collect user from db by email
+	user, err := s.queries.GetUserByEmail(ctx, req.Email)
+	if err != nil {
+		return nil, fmt.Errorf("invalid email or password: %w", err)
+	}
+	// compare password
+	if !utils.ComparePassword(user.Password, req.Password) {
+		return nil, errors.ErrKeyIncorrect
+	}
+	return &user, nil
+}
+
+func (s *UserService) UpdateUser(ctx context.Context, id int32, req dto.UpdateUserRequest) (db.User, error) {
+	// Ambil user lama dari DB
+	user, err := s.queries.GetUserByID(ctx, id)
+	if err != nil {
+		return db.User{}, err
+	}
+
+	// Update hanya field yang dikirim
+	if req.Username != nil {
+		user.Username = *req.Username
+	}
+	if req.Email != nil {
+		user.Email = *req.Email
+	}
+	if req.Password != nil {
+		hashed, err := utils.HashPassword(*req.Password)
+		if err != nil {
+			return db.User{}, err
+		}
+		user.Password = hashed
+	}
+	// Update updated_at
+	user.Updated = time.Now()
+
+	// Jalankan update ke DB (bisa pakai sqlc custom query, atau update semua field)
+	updatedUser, err := s.queries.UpdateUser(ctx, db.UpdateUserParams{
+		ID:       user.ID,
+		Username: user.Username,
+		Email:    user.Email,
+		Password: user.Password,
+		Updated:  user.Updated,
+	})
+	return updatedUser, err
 }
