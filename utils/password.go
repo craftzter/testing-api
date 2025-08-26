@@ -15,7 +15,8 @@ func HashPassword(password string) (string, error) {
 	return string(hashedPassword), nil
 }
 
-func ComparePassword(storePassword, providedPassword string) bool {
-	err := bcrypt.CompareHashAndPassword([]byte(storePassword), []byte(providedPassword))
+// ComparePassword membandingkan hash password di database dengan password yang diberikan user
+func ComparePassword(hashedPassword, plainPassword string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(plainPassword))
 	return err == nil
 }

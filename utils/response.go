@@ -7,7 +7,7 @@ import (
 
 type SuccessResponse struct {
 	Message string      `json:"message"`
-	Data    interface{} `json:"data", omitempty`
+	Data    interface{} `json:"data,omitempty"`
 }
 
 type ErrorResponse struct {
@@ -21,7 +21,7 @@ func ResponseWithSuccess(w http.ResponseWriter, code int, message string, data i
 }
 
 func ResponseWithError(w http.ResponseWriter, code int, message string) {
-	w.Header().Set("Content-Type", "message")
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)
 	json.NewEncoder(w).Encode(ErrorResponse{Message: message})
 }

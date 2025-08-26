@@ -28,3 +28,7 @@ RETURNING *;
 -- name: DeleteUser :exec
 DELETE FROM users
 WHERE id = $1;
+-- name: GetUserByID :one
+SELECT id, username, email, password, created, updated
+FROM users
+WHERE id = $1;
