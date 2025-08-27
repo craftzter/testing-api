@@ -21,7 +21,7 @@ func (h *Handler) CreateUserHandler() http.HandlerFunc {
 		}
 		user, err := h.UserService.CreateUser(ctx, req) // return user, bukan hanya error
 		if err != nil {
-			utils.ResponseWithError(w, http.StatusInternalServerError, "error creating user")
+			utils.ResponseWithError(w, http.StatusInternalServerError, err.Error())
 			return
 		}
 		utils.ResponseWithSuccess(w, http.StatusCreated, "user created success", user)

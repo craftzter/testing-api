@@ -38,3 +38,5 @@ func LoadingConfig() (*Config, error) {
 		DatabaseUrl: getEnv("DATABASE_URL", ""),
 	}, nil
 }
+
+

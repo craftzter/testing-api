@@ -1,5 +1,10 @@
-# Heading 1
-##
+<center>
+
+# Dokumentasi penggunaan api
+
+</center>
+
+## 1. setelah melakukan 
 - [ ] Checkbox
 - Bullet
 ***
@@ -15,3 +20,7 @@ fmt.Println("hallo world")
 ```
 ###
 *
+
+<center>
+This block is centered.
+</center>

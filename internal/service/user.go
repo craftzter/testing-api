@@ -2,13 +2,13 @@ package service
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 	"fmt"
 	"monly-login-api/internal/dto"
 	db "monly-login-api/internal/generate"
 	"monly-login-api/utils"
 	"time"
-
-	"golang.org/x/crypto/openpgp/errors"
 )
 
 type UserService struct {
@@ -20,19 +20,37 @@ func NewUserService(q *db.Queries) *UserService {
 }
 
 func (s *UserService) CreateUser(ctx context.Context, req dto.CreateUserRequest) (db.User, error) {
+	// validate and make sure all fields are filled
+	if req.Username == "" || req.Email == "" || req.Password == "" {
+		return db.User{}, errors.New("all fields are required")
+	}
+
+	// check if email is exists
+	_, err := s.queries.GetUserByEmail(ctx, req.Email)
+	if err == nil {
+		return db.User{}, errors.New("email is already used")
+	} else if err != sql.ErrNoRows {
+		// error lain (DB error dsb)
+		return db.User{}, err
+	}
+
+	// hashing password
 	hashedPassword, err := utils.HashPassword(req.Password)
 	if err != nil {
 		return db.User{}, err
 	}
 
-	_, err = s.queries.CreateUser(ctx, db.CreateUserParams{
+	user, err := s.queries.CreateUser(ctx, db.CreateUserParams{
 		Username: req.Username,
 		Email:    req.Email,
 		Password: hashedPassword,
 		Created:  time.Now(),
 		Updated:  time.Now(),
 	})
-	return db.User{}, err
+	if err != nil {
+		return db.User{}, err
+	}
+	return user, nil
 }
 
 func (s *UserService) LoginUser(ctx context.Context, req dto.LoginUserRequest) (*db.User, error) {
@@ -43,7 +61,7 @@ func (s *UserService) LoginUser(ctx context.Context, req dto.LoginUserRequest) (
 	}
 	// compare password
 	if !utils.ComparePassword(user.Password, req.Password) {
-		return nil, errors.ErrKeyIncorrect
+		return nil, fmt.Errorf("invalid email or password: %w", errors.New("password does not match"))
 	}
 	return &user, nil
 }
