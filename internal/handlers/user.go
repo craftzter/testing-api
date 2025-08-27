@@ -5,7 +5,6 @@ import (
 	"monly-login-api/internal/dto"
 	"monly-login-api/utils"
 	"net/http"
-	"os"
 	"strconv"
 
 	"github.com/go-chi/chi/v5"
@@ -47,7 +46,7 @@ func (h *Handler) LoginHandler() http.HandlerFunc {
 		}
 
 		// generate JWT
-		token, err := utils.GenerateJWT(int64(user.ID), user.Username, []byte(os.Getenv("JWT_SECRET")))
+		token, err := utils.GenerateJWT(int64(user.ID), user.Username, utils.SecretKey)
 		if err != nil {
 			utils.ResponseWithError(w, http.StatusInternalServerError, "failed to generate token")
 			return

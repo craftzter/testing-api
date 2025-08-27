@@ -1,10 +1,14 @@
 package utils
 
 import (
+	"errors"
+	"os"
 	"time"
 
 	"github.com/golang-jwt/jwt"
 )
+
+var SecretKey = []byte(os.Getenv("JWT_SECRET")) // Public/exported
 
 type Claims struct {
 	UserID   int64  `json:"user_id"`
@@ -18,8 +22,8 @@ func GenerateJWT(userID int64, username string, secretKey []byte) (string, error
 		UserID:   userID,
 		Username: username,
 		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(24 * time.Hour).Unix(), // ✅ set expired time
-			IssuedAt:  time.Now().Unix(),                     // optional
+			ExpiresAt: time.Now().Add(24 * time.Hour).Unix(),
+			IssuedAt:  time.Now().Unix(),
 		},
 	}
 
@@ -36,10 +40,8 @@ func ParseJWT(tokenString string, secretKey []byte) (*Claims, error) {
 		return nil, err
 	}
 
-	// cek apakah valid dan bisa casting ke Claims
 	if claims, ok := token.Claims.(*Claims); ok && token.Valid {
 		return claims, nil
 	}
-	return nil, err
+	return nil, errors.New("invalid token claims")
 }
-

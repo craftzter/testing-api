@@ -1,4 +1,4 @@
-.PHONY: gen, up, down, start, stop,
+.PHONY: gen, up, down, start, stop, psql
 gen:
 	sqlc generate
 
@@ -13,3 +13,6 @@ start:
 
 stop:
 	docker-compose down -v
+
+psql:
+	docker exec -it monly_postgres psql -U root -d testingDB
