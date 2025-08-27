@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 	"fmt"
 	"monly-login-api/internal/dto"
@@ -20,20 +19,10 @@ func NewUserService(q *db.Queries) *UserService {
 }
 
 func (s *UserService) CreateUser(ctx context.Context, req dto.CreateUserRequest) (db.User, error) {
-	// validate and make sure all fields are filled
-	if req.Username == "" || req.Email == "" || req.Password == "" {
-		return db.User{}, errors.New("all fields are required")
-	}
-
-	// check if email is exists
-	_, err := s.queries.GetUserByEmail(ctx, req.Email)
-	if err == nil {
-		return db.User{}, errors.New("email is already used")
-	} else if err != sql.ErrNoRows {
-		// error lain (DB error dsb)
+	// validate the input using utils in utils folder
+	if err := utils.ValidateRegisterInput(req); err != nil {
 		return db.User{}, err
 	}
-
 	// hashing password
 	hashedPassword, err := utils.HashPassword(req.Password)
 	if err != nil {
