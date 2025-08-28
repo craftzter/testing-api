@@ -37,7 +37,7 @@ func (h *Handler) LoginHandler() http.HandlerFunc {
 		// decode request
 		var req dto.LoginUserRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-			utils.ResponseWithAppropriateError(w, utils.ValidationError{"invalid request payload"})
+			utils.ResponseWithAppropriateError(w, utils.ValidationError{"invalid please check your loggin account"})
 			return
 		}
 
