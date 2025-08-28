@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"monly-login-api/internal/dto"
+	"monly-login-api/internal/middleware"
 	"monly-login-api/utils"
 	"net/http"
 	"strconv"
@@ -70,26 +71,35 @@ func (h *Handler) UpdateHandler() http.HandlerFunc {
 		idStr := chi.URLParam(r, "id")
 		id, err := strconv.Atoi(idStr) // conversi string
 		if err != nil {
-			utils.ResponseWithAppropriateError(w, utils.ValidationError{"invalid user id"})
+			utils.ResponseWithAppropriateError(w, utils.ValidationError{"invalid user id make sure id is number"})
 			return
 		}
-		ctx := r.Context()
-		// decode request
+		// collect id from header
+		authUserID, ok := r.Context().Value(middleware.UserIDKey).(int32)
+		if !ok {
+			utils.ResponseWithAppropriateError(w, utils.AuthError{"unauthorized access"})
+			return
+		}
+		// only user can update their self data
+		if int32(id) != authUserID {
+			utils.ResponseWithAppropriateError(w, utils.AuthError{"forbiddent access"})
+			return
+		}
+		// decode request 
 		var req dto.UpdateUserRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-			utils.ResponseWithAppropriateError(w, utils.ValidationError{"invalid request payload"})
-			return
+			utils.ResponseWithAppropriateError(w, utils.ValidationError{"invalid request payload check your data input"})
+			return 
 		}
-		// panggil service
-		updatedUser, err := h.UserService.UpdateUser(ctx, int32(id), req)
+		// summon service
+		ctx := r.Context()
+		updateUser, err := h.UserService.UpdateUser(ctx, int32(id), req)
 		if err != nil {
 			utils.ResponseWithAppropriateError(w, err)
-			return
+			return 
 		}
-		// response sukses
-		utils.ResponseWithSuccess(w, http.StatusOK, "user updated success", updatedUser)
-	}
-}
+		utils.ResponseWithSuccess(w, http.StatusOK,"user update success", updateUser)
+}}
 
 func (h *Handler) GetUserByIDHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
