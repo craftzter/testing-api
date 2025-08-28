@@ -11,13 +11,13 @@ import (
 var SecretKey = []byte(os.Getenv("JWT_SECRET")) // Public/exported
 
 type Claims struct {
-	UserID   int64  `json:"user_id"`
+	UserID   int32  `json:"user_id"`
 	Username string `json:"username"`
 	jwt.StandardClaims
 }
 
 // GenerateJWT generates a JWT token valid for 24 hours
-func GenerateJWT(userID int64, username string, secretKey []byte) (string, error) {
+func GenerateJWT(userID int32, username string, secretKey []byte) (string, error) {
 	claims := Claims{
 		UserID:   userID,
 		Username: username,

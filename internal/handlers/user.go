@@ -50,7 +50,7 @@ func (h *Handler) LoginHandler() http.HandlerFunc {
 		}
 
 		// generate JWT
-		token, err := utils.GenerateJWT(int64(user.ID), user.Username, utils.SecretKey)
+		token, err := utils.GenerateJWT(int32(user.ID), user.Username, utils.SecretKey)
 		if err != nil {
 			utils.ResponseWithAppropriateError(w, err)
 			return
@@ -99,8 +99,8 @@ func (h *Handler) UpdateHandler() http.HandlerFunc {
 			return 
 		}
 		utils.ResponseWithSuccess(w, http.StatusOK,"user update success", updateUser)
-}}
-
+	}
+}
 func (h *Handler) GetUserByIDHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		idStr := chi.URLParam(r, "id")
