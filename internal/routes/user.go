@@ -12,6 +12,8 @@ func SetupUserRoute(r *chi.Mux, handler *handlers.Handler) {
 		// PUBLIC ROUTES
 		r.Post("/register", handler.CreateUserHandler())
 		r.Post("/login", handler.LoginHandler())
+		r.Get("/{id}", handler.GetUserByIDHandler())
+		r.Get("/list", handler.GetListUser())
 
 		// PROTECTED ROUTES
 		r.Group(func(r chi.Router) {

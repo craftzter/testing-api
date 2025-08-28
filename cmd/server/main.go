@@ -4,12 +4,14 @@ package main
 import (
 	"fmt"
 	"log"
+	"log/slog"
 	"monly-login-api/config"
 	"monly-login-api/database"
 	"monly-login-api/internal/handlers"
 	"monly-login-api/internal/routes"
 	"monly-login-api/internal/service"
 	"net/http"
+	"os"
 
 	db "monly-login-api/internal/generate"
 
@@ -17,6 +19,9 @@ import (
 )
 
 func main() {
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+		Level: slog.LevelDebug,
+	}))
 	// load config
 	cfg, err := config.LoadingConfig()
 	if err != nil {
@@ -31,7 +36,7 @@ func main() {
 	queries := db.New(conn)
 
 	// bikin user service
-	userService := service.NewUserService(queries)
+	userService := service.NewUserService(queries, logger)
 
 	// bikin handler
 	handler := handlers.NewHandlers(conn, queries, userService)

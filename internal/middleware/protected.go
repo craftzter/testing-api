@@ -18,17 +18,17 @@ func AuthMiddleware(next http.Handler) http.Handler {
 		fmt.Println("AuthMiddleware called")
 		authHeader := r.Header.Get("Authorization")
 		if authHeader == "" {
-			utils.ResponseWithError(w, http.StatusUnauthorized, "Authorization header required")
+			utils.ResponseWithAppropriateError(w, utils.AuthError{"Authorization header required"})
 			return
 		}
 		parts := strings.Split(authHeader, " ")
 		if len(parts) != 2 || parts[0] != "Bearer" {
-			utils.ResponseWithError(w, http.StatusUnauthorized, "Invalid Authorization header format")
+			utils.ResponseWithAppropriateError(w, utils.AuthError{"Invalid Authorization header format"})
 			return
 		}
 		claims, err := utils.ParseJWT(parts[1], utils.SecretKey)
 		if err != nil {
-			utils.ResponseWithError(w, http.StatusUnauthorized, "Invalid token: "+err.Error())
+			utils.ResponseWithAppropriateError(w, utils.AuthError{"Invalid token: " + err.Error()})
 			return
 		}
 		ctx := context.WithValue(r.Context(), UserIDKey, claims.UserID)
