@@ -87,37 +87,44 @@ func (s *UserService) UpdateUser(ctx context.Context, id int32, req dto.UpdateUs
 	}
 
 	// Update hanya field yang dikirim
-	if req.Username != nil {
-		user.Username = *req.Username
-	}
-	if req.Email != nil {
-		user.Email = *req.Email
-	}
-	if req.Password != nil {
-		hashed, err := utils.HashPassword(*req.Password)
-		if err != nil {
-			s.logger.Error("failed to hashing password on update", "err", err, "userID", id)
-			return db.User{}, err
-		}
-		user.Password = hashed
-	}
-	// Update updated_at
-	user.Updated = time.Now()
+   if req.Username != nil {
+        if *req.Username == "" {
+            return db.User{}, utils.ValidationError{"username cannot be empty"}
+        }
+        user.Username = *req.Username
+    }
+    if req.Email != nil {
+        if *req.Email == "" {
+            return db.User{}, utils.ValidationError{"email cannot be empty"}
+        }
+        user.Email = *req.Email
+    }
+    if req.Password != nil {
+        if *req.Password == "" {
+            return db.User{}, utils.ValidationError{"password cannot be empty"}
+        }
+        hashed, err := utils.HashPassword(*req.Password)
+        if err != nil {
+            s.logger.Error("failed to hashing password on update", "err", err, "userID", id)
+            return db.User{}, err
+        }
+        user.Password = hashed
+    }
+    user.Updated = time.Now()
 
-	// Jalankan update ke DB (bisa pakai sqlc custom query, atau update semua field)
-	updatedUser, err := s.queries.UpdateUser(ctx, db.UpdateUserParams{
-		ID:       user.ID,
-		Username: user.Username,
-		Email:    user.Email,
-		Password: user.Password,
-		Updated:  user.Updated,
-	})
-	if err != nil {
-		s.logger.Error("failed to update user", "err", err, "userID", id)
-		return db.User{}, err
-	}
-	s.logger.Info("user updated", "userID", updatedUser.ID, "email", updatedUser.Email)
-	return updatedUser, nil
+    updatedUser, err := s.queries.UpdateUser(ctx, db.UpdateUserParams{
+        ID:       user.ID,
+        Username: user.Username,
+        Email:    user.Email,
+        Password: user.Password,
+        Updated:  user.Updated,
+    })
+    if err != nil {
+        s.logger.Error("failed to update user", "err", err, "userID", id)
+        return db.User{}, err
+    }
+    s.logger.Info("user updated", "userID", updatedUser.ID, "email", updatedUser.Email)
+    return updatedUser, nil
 }
 
 func (s *UserService) GetUserByID(ctx context.Context, id int32) (dto.UserResponse, error) {
