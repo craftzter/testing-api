@@ -88,7 +88,7 @@ func (h *Handler) UpdateHandler() http.HandlerFunc {
 		// decode request 
 		var req dto.UpdateUserRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-			utils.ResponseWithAppropriateError(w, utils.ValidationError{"invalid request payload check your data input"})
+	utils.ResponseWithAppropriateError(w, utils.ValidationError{"invalid request payload check your data input"})
 			return 
 		}
 		// summon service
