@@ -9,6 +9,7 @@ import (
 	"monly-login-api/internal/dto"
 	db "monly-login-api/internal/generate"
 	"monly-login-api/utils"
+	"strings"
 	"time"
 )
 
@@ -91,12 +92,21 @@ func (s *UserService) UpdateUser(ctx context.Context, id int32, req dto.UpdateUs
         if *req.Username == "" {
             return db.User{}, utils.ValidationError{"username cannot be empty"}
         }
+				if strings.Contains(*req.Email, " "){
+					return db.User{}, utils.ValidationError{"username cannot contain white spaces"}
+				}
         user.Username = *req.Username
     }
     if req.Email != nil {
         if *req.Email == "" {
             return db.User{}, utils.ValidationError{"email cannot be empty"}
         }
+				if strings.Contains(*req.Email, " "){
+					return db.User{}, utils.ValidationError{"email cannot contain whitespaces"}
+				}
+				if !strings.HasSuffix(*req.Email, "@gmail.com"){
+					return db.User{}, utils.ValidationError{"email must a valid gmail"}
+				}
         user.Email = *req.Email
     }
     if req.Password != nil {
